@@ -3,9 +3,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
-#include <asm/uaccess.h>
 #include <linux/sched.h>
 #include <linux/fs_struct.h>
+#include <linux/uaccess.h>
+#include <asm/uaccess.h>
 
 // Module Info
 MODULE_LICENSE("GPL");
