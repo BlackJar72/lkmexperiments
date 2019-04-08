@@ -4,6 +4,8 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <asm/uaccess.h>
+#include <linux/sched.h>
+#include <linux/fs_struct.h>
 
 // Module Info
 MODULE_LICENSE("GPL");
@@ -13,7 +15,7 @@ MODULE_VERSION("0.0.1");
 
 #define DEVICE_NAME "hello"
 #define EXAMPLE_MSG "Hello World! \n\0"
-#define MSG_BUFFER_LEN 15
+#define MSG_BUFFER_LEN 16
 
 
 // Data variables and buffers
@@ -21,6 +23,14 @@ static int major_num;
 static int device_open_count = 0;
 static char msg_buffer[MSG_BUFFER_LEN];
 static char *msg_ptr;
+static int i;
+
+// Prototypes for device functsion;
+// I need these to declare the required struct.
+static int device_open(struct inode*, struct file*);
+static int device_close(struct inode*, struct file*);
+static ssize_t device_read(struct file*, char*, size_t, loff_t*);
+static ssize_t device_write(struct file*, const char*, size_t, loff_t*);
 
 
 // This structure points to all device functions
@@ -28,7 +38,7 @@ static struct file_operations file_ops = {
   .read = device_read,
   .write = device_write,
   .open = device_open,
-  .release = device_release
+  .release = device_close
 };
 
 
@@ -42,7 +52,7 @@ static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* 
   while(len && *msg_ptr) {
     // Buffer is in user data, not kernel, so it can't be reference with a pointer
     // The functions put_user() handles this for us.
-    put_user(*(msg_ptr+), buffer++);
+    put_user(*(msg_ptr++), buffer++);
     len--;
     bytes_read++;
   }
@@ -66,6 +76,7 @@ static int device_open(struct inode* inode, struct file* file) {
   }
   device_open_count++;
   try_module_get(THIS_MODULE);
+  return 0;
 }
 
 
@@ -81,15 +92,14 @@ static int device_close(struct inode* inode, struct file* file) {
 // Load the module
 static int __init lkm_hello_init(void) {
   printk(KERN_INFO "Hello Kernel!\n");
-  // Fil buffer with out message
-  int i;
+  // Fill buffer with out message
   for(i = 0; i < MSG_BUFFER_LEN; i++) {
     msg_buffer[i] = EXAMPLE_MSG[i];
   }
   // Set the msg_ptr to the buffer
   msg_ptr = msg_buffer;
   // Try to register the device
-  major_num = register_chrdev(0, DEVICE_NAME, &file_ops);
+  major_num = register_chrdev(0, "hellomod", &file_ops);
   if(major_num < 0) {
     printk(KERN_ALERT "Could not register device: %d\n", major_num);
     return major_num;
