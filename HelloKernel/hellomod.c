@@ -11,7 +11,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("JaredBGreat");
 MODULE_DESCRIPTION("Say hello forever");
-MODULE_VERSION("0.0.1");
+MODULE_VERSION("0.1.0");
 
 #define DEVICE_NAME "hello"
 #define EXAMPLE_MSG "Hello World! \n\0"
