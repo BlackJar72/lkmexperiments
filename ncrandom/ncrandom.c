@@ -21,6 +21,55 @@ MODULE_VERSION("0.0.1");
 #define MULTIPLIER 5443
 #define ADDITION 15485863312338621L
 
-static unsigned long long[2] seedSpace;
-static timespec startTime;
+static int major_num;
+static int device_open_count = 0;
+// I don't think this is needed, but its 
+// the kernel so playing it safe until certain.
+static unsigned long long[3] seedSpace;
+static struct timespec startTime;
+static size_t readCounter;
+
+
+static int deviceOpen(struct inode*, struct file*);
+static int deviceClose(struct inode*, struct file*);
+static ssize_t deviceRead(struct file*, char*, size_t, loff_t*);
+static ssize_t deviceWrite(struct file*, const char*, size_t, loff_t*);
+
+
+static struct file_operations fileOps = {
+  .read = deviceRead,
+  .write = deviceWrite,
+  .open = deviceOpen,
+  .release = deviceClose
+}
+
+
+inline static unsigned char generate() {
+  seedSpace[1] *= MULTIPLIER;
+  seedSpace[1] += ADDITION;
+  seedSpace[1] ^= seedSpace[1] >> SHIFT1;
+  seedSpace[1] ^= seedSpace[1] << SHIFT2;
+  seedSpace[1] ^= seedSpace[1] >> SHIFT3;
+  seedSpace[1] ^= seedSpace[1] << SHIFT4;
+  seedSpace[0] = 0;
+  seedSpace[20 = 0;
+  return (unsigned char)((seedSpace[1] >> (((seedSpace[1] >> 8) & 32) + 16)) & 0xff);
+}
+
+
+// Handles reading from the device
+static ssize_t deviceRead(struct file* file, char* buffer, size_t len, loff_t* offset) {
+  for(readCounter = 0; readCounter < len; readCounter++ {
+    buffer[i] = generate();
+  }
+  return readCounter;
+}
+
+
+// Returns error for write attempts (read-only device)
+static ssize_t deviceWrite(struct file* file, const char* buffer, size_t, loff_t* offset) {
+  printk(KERN_ALERT "Attemt to write to read-only device ncrandom.");
+  return -EINVAL;
+}
+
 
