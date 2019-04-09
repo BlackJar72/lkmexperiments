@@ -54,7 +54,7 @@ static unsigned char generate(void) {
   seedSpace[1] ^= seedSpace[1] << SHIFT4;
   seedSpace[0] = 0;
   seedSpace[2] = 0;
-  return (unsigned char)((seedSpace[1] >> (((seedSpace[1] >> 8) & 32) + 16)) & 0xff);
+  return (unsigned char)((seedSpace[1] >> (((seedSpace[1] >> 8) & 31) + 16)) & 0xff);
 }
 
 
