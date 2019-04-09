@@ -20,6 +20,7 @@ MODULE_VERSION("0.0.1");
 #define SHIFT4 7
 #define MULTIPLIER 5443
 #define ADDITION 15485863312338621L
+#define DEVICE_NAME ncrandom
 
 static int major_num;
 static int device_open_count = 0;
@@ -28,6 +29,7 @@ static int device_open_count = 0;
 static unsigned long long[3] seedSpace;
 static struct timespec startTime;
 static size_t readCounter;
+static int devCount = 0;
 
 
 static int deviceOpen(struct inode*, struct file*);
@@ -60,7 +62,7 @@ inline static unsigned char generate() {
 // Handles reading from the device
 static ssize_t deviceRead(struct file* file, char* buffer, size_t len, loff_t* offset) {
   for(readCounter = 0; readCounter < len; readCounter++ {
-    buffer[i] = generate();
+    put_user(generate(), (buffer[i]);
   }
   return readCounter;
 }
@@ -75,26 +77,44 @@ static ssize_t deviceWrite(struct file* file, const char* buffer, size_t, loff_t
 
 // Opens the device for access
 static int deviceOpen(struct inode* inode, struct file* file) {
-  // TODO
+  if(devCount) {
+    return -EBUSY;
+  } else {
+    devCount++;
+    try_module_get(THIS_MODULE);
+    return 0;
+  }
 }
 
 
 // Closes (releases) the device
 static int deviceClose(struct inode* inode, struct file* file) {
-  // TODO
+  devCount--;
+  module_put(THIS_MODULE);
+  return 0;
 }
 
 
 // Start the module / insert into kernel
 static int __init ncrandomInit(void) {
-  printk(KERN_INFO "Loading kernel module ncrandom.");
-  // TODO
+  printk(KERN_INFO "Loading kernel module ncrandom.\n");  
+  getnstimeofday(&startTime);
+  seedSpace[1] = startTime.tv_nsec;
+  major_num = register_chrdev(0, DEVICE_NAME, &fileOps);
+  if(major_num < 0) {
+    printk(KERN_ALERT "Failed to register ncrandom device: %d\n", major_num);
+    return major_num;
+  } else {
+    printk(KERN_ALERT "Successfull registered ncrandom device as %d.\n", major_num);
+    return 0;
+  }
 }
 
 
 // Clean-up resources, remove the module from the kernel and shut down
 static void __exit ncrandomExit(void) {
-  // TODO
+  unregister_chrdev(major_num, DEVICE_NAME);
+  printk(KERN_INFO "Remove ncrandom device module.\n");
 }
 
 
