@@ -68,8 +68,35 @@ static ssize_t deviceRead(struct file* file, char* buffer, size_t len, loff_t* o
 
 // Returns error for write attempts (read-only device)
 static ssize_t deviceWrite(struct file* file, const char* buffer, size_t, loff_t* offset) {
-  printk(KERN_ALERT "Attemt to write to read-only device ncrandom.");
+  printk(KERN_ALERT "Attempted to write to read-only device ncrandom.");
   return -EINVAL;
 }
 
 
+// Opens the device for access
+static int deviceOpen(struct inode* inode, struct file* file) {
+  // TODO
+}
+
+
+// Closes (releases) the device
+static int deviceClose(struct inode* inode, struct file* file) {
+  // TODO
+}
+
+
+// Start the module / insert into kernel
+static int __init ncrandomInit(void) {
+  printk(KERN_INFO "Loading kernel module ncrandom.");
+  // TODO
+}
+
+
+// Clean-up resources, remove the module from the kernel and shut down
+static void __exit ncrandomExit(void) {
+  // TODO
+}
+
+
+module_init(ncrandomInit);
+module_exit(ncrandomInit);
