@@ -104,9 +104,9 @@ static int __init ncrandomInit(void) {
     printk(KERN_ALERT "Failed to register ncrandom device: %d\n", major_num);
     return major_num;
   } else {
-    printk(KERN_INFO "Successfull registered ncrandom device as %d.\n", major_num);
+    printk(KERN_INFO "Successfully registered ncrandom device as %d.\n", major_num);
     return 0;
-  }
+  } 
 }
 
 
