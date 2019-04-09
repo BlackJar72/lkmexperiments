@@ -1,4 +1,5 @@
-# Learning Experiments in Linux System Programming (Kernel Modules)
+# Learning Experiments in Linux System Programming 
+## (Kernel Modules)
 
 These are learning projects, not generally useful.  The first is simply a tutorial 
 I followed.  The second original and quasi-useful, a non-cryptographic pseudorandom 
